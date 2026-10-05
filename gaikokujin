@@ -1,0 +1,16 @@
+【訪日外国人観光客の国籍ランキングのSQL文】
+SELECT 
+    country, 
+    SUM(amount) AS total_amount
+FROM `DATA.count`
+UNPIVOT(
+    amount FOR country IN (
+        Korea, TW, HK, CN, TAI, SINGAPORE, MAKAYSIA, 
+        INDONISIA, PHILLPIN, VATNAM, INDO, EN, GMIN, 
+        FR, ITALIA, SPAIN, RUSSIA, US, KANADA, 
+        MEKISIKO, ASTRO, EUROPA, MID_WAST, OTHER
+    )
+)
+GROUP BY country
+ORDER BY total_amount DESC
+LIMIT 5
