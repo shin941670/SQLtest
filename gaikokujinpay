@@ -1,0 +1,39 @@
+【訪日外国人觀光客消費項目のSQL文】
+
+WITH clean_raw AS (
+    SELECT * 
+    FROM `my-project-sql-report.DATA.count`
+    WHERE `項目` IS NOT NULL
+),
+long_table AS (
+    SELECT 
+        `項目`,
+        country,
+        amount
+    FROM clean_raw
+    UNPIVOT (
+        amount FOR country IN (
+            Korea, TW, HK, CN, TAI, 
+            SINGAPORE, MAKAYSIA, INDONISIA, PHILLPIN, VATNAM, 
+            INDO, EN, GMIN, FR, ITALIA, 
+            SPAIN, RUSSIA, US, KANADA, MEKISIKO, 
+            ASTRO, EUROPA, MID_WAST, OTHER
+        )
+    )
+),
+item_summary AS (
+    SELECT 
+        `項目`,
+        SUM(amount) AS `消費合計額`,
+        ROUND(AVG(amount), 1) AS `国別平均額`
+    FROM long_table
+    WHERE amount IS NOT NULL
+    GROUP BY `項目`
+)
+SELECT 
+    `項目`,
+    `消費合計額`,
+    `国別平均額`,
+    ROUND(100.0 * `消費合計額` / SUM(`消費合計額`) OVER(), 2) AS `構成比_百分率`
+FROM item_summary
+ORDER BY `消費合計額` DESC;
